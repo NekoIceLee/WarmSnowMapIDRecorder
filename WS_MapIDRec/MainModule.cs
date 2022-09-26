@@ -49,30 +49,50 @@ namespace WS_MapIDRec
         }
         
     }
-    public class ValueTrace<T>
+    public class InstanceFieldTrace<T>
     {
         public delegate void ValueChangeHandle(object val);
         public event ValueChangeHandle OnValueChange;
-        object _target;
-        string _valName;
+        Type _target;
+        string _fieldName;
         T _val;
         T _lastVal;
-        public ValueTrace(object parentclass, string propertyname)
+        public InstanceFieldTrace(object parentInstance, string propertyName, ValueChangeHandle callback)
         {
-            _target = parentclass;
-            _valName = propertyname;
+            _target = parentInstance.GetType();
+            _fieldName = propertyName;
+            var instance = _target.GetField("instance")
+                                  .GetValue(null);
+            _val = (T)instance.GetType()
+                              .GetRuntimeField(propertyName)
+                              .GetValue(instance);
+            _lastVal = _val;
+            OnValueChange += callback;
+        }
+        public InstanceFieldTrace(object parentInstance, string propertyName)
+        {
+            _target = parentInstance.GetType();
+            _fieldName = propertyName;
+            var instance = _target.GetField("instance")
+                                  .GetValue(null);
+            _val = (T)instance.GetType()
+                              .GetRuntimeField(propertyName)
+                              .GetValue(instance);
+            _lastVal = _val;
         }
         public void CheckValChange()
         {
             if (_target == null) return;
-            var info = _target.GetType()
-                              .GetRuntimeField(_valName);
-            _val = (T)info.GetValue(_target);
+            var instance = _target.GetField("instance")
+                                  .GetValue(null);
+            _val = (T)instance.GetType()
+                              .GetRuntimeField(_fieldName)
+                              .GetValue(instance);
             if (_val.GetHashCode() != _lastVal.GetHashCode())
             {
                 OnValueChange(_val);
+                _lastVal = _val;
             }
-            _lastVal = _val;
         }
     }
 }
