@@ -58,19 +58,22 @@ namespace WS_MapIDRec
                               .GetValue(instance);
             _lastVal = _val;
         }
-        new public void CheckValChange()
+        new public async void CheckValChange()
         {
-            var instance = _target.GetField(_instanceName)
-                                  .GetValue(null);
-            if (instance == null) return;
-            _val = (T)instance.GetType()
-                              .GetRuntimeField(_fieldName)
-                              .GetValue(instance);
-            if (_val.GetHashCode() != _lastVal.GetHashCode())
+            await Task.Run(() =>
             {
-                OnValueChange(_val);
-                _lastVal = _val;
-            }
+                var instance = _target.GetField(_instanceName)
+                                      .GetValue(null);
+                if (instance == null) return;
+                _val = (T)instance.GetType()
+                                  .GetRuntimeField(_fieldName)
+                                  .GetValue(instance);
+                if (_val.GetHashCode() != _lastVal.GetHashCode())
+                {
+                    OnValueChange(_val);
+                    _lastVal = _val;
+                }
+            });
         }
     }
     public class InstanceFieldTrace
@@ -95,19 +98,22 @@ namespace WS_MapIDRec
             _lastVal = _val;
         }
 
-        public void CheckValChange()
+        public async void CheckValChange()
         {
-            var instance = _target.GetField(_instanceName)
-                                  .GetValue(null);
-            if (instance == null) return;
-            _val = instance.GetType()
-                              .GetRuntimeField(_fieldName)
-                              .GetValue(instance);
-            if (_val.GetHashCode() != _lastVal.GetHashCode())
+            await Task.Run(() =>
             {
-                OnValueChange(_val);
-                _lastVal = _val;
-            }
+                var instance = _target.GetField(_instanceName)
+                                      .GetValue(null);
+                if (instance == null) return;
+                _val = instance.GetType()
+                                  .GetRuntimeField(_fieldName)
+                                  .GetValue(instance);
+                if (_val.GetHashCode() != _lastVal.GetHashCode())
+                {
+                    OnValueChange(_val);
+                    _lastVal = _val;
+                }
+            });
         }
     }
 }
