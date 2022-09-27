@@ -19,6 +19,7 @@ namespace WS_MapIDRec
     {
         delegate void CheckValueChangeHandle();
         event CheckValueChangeHandle GoCheckValue;
+        const string Logfile = ".\\MapIDLog.log";
         void Start()
         {
             Logger.LogInfo("Starting MapID Record");
@@ -31,7 +32,21 @@ namespace WS_MapIDRec
 
         private void MapIDTrace_OnValueChange(object val)
         {
-            
+            string timestring = "Not Started";
+            if (UI_TimeCount.instance != null)
+            {
+                timestring = (UI_TimeCount.instance.stringHour, UI_TimeCount.instance.stringMin, UI_TimeCount.instance.stringSec, UI_TimeCount.instance.msec).ToString();
+            }
+            string strlog = ("GameTime: ", timestring, "MapID: ", val, "StageMapID: ", StageControl.instance.stageMapId, "SceneName: ", SceneManager.GetActiveScene().name).ToString();
+            if (!File.Exists(Logfile)) File.Create(Logfile).Close();
+            FileStream logstream = new FileStream(Logfile, FileMode.Open, FileAccess.Write);
+            logstream.Position = logstream.Length;
+            byte[] data = Encoding.UTF8.GetBytes(strlog);
+            logstream.Write(data, 0, data.Length);
+            logstream.Flush();
+            logstream.Close();
+            logstream.Dispose();
+            Logger.LogInfo(strlog);
         }
 
         void Update()
