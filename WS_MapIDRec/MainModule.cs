@@ -35,9 +35,9 @@ namespace WS_MapIDRec
             string timestring = "Not Started";
             if (UI_TimeCount.instance != null)
             {
-                timestring = (UI_TimeCount.instance.stringHour, UI_TimeCount.instance.stringMin, UI_TimeCount.instance.stringSec, UI_TimeCount.instance.msec).ToString();
+                timestring = $"{UI_TimeCount.instance.stringHour}:{UI_TimeCount.instance.stringMin}:{UI_TimeCount.instance.stringSec}:{UI_TimeCount.instance.stringMsec}";
             }
-            string strlog = ("GameTime: ", timestring, "MapID: ", val, "StageMapID: ", StageControl.instance.stageMapId, "SceneName: ", SceneManager.GetActiveScene().name).ToString();
+            string strlog = $"GameTime:{timestring},MapID:{val},StageMapID:{StageControl.instance.stageMapId},SceneName:{SceneManager.GetActiveScene().name}";
             if (!File.Exists(Logfile)) File.Create(Logfile).Close();
             FileStream logstream = new FileStream(Logfile, FileMode.Open, FileAccess.Write);
             logstream.Position = logstream.Length;
