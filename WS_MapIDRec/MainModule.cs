@@ -37,7 +37,7 @@ namespace WS_MapIDRec
             {
                 timestring = $"{UI_TimeCount.instance.stringHour}:{UI_TimeCount.instance.stringMin}:{UI_TimeCount.instance.stringSec}:{UI_TimeCount.instance.stringMsec}";
             }
-            string strlog = $"GameTime:{timestring},MapID:{val},StageMapID:{StageControl.instance.stageMapId},SceneName:{SceneManager.GetActiveScene().name}";
+            string strlog = $"GameTime:{timestring},MapID:{val},StageMapID:{StageControl.instance.stageMapId},SceneName:{SceneManager.GetActiveScene().name}\r\n";
             if (!File.Exists(Logfile)) File.Create(Logfile).Close();
             FileStream logstream = new FileStream(Logfile, FileMode.Open, FileAccess.Write);
             logstream.Position = logstream.Length;
@@ -68,27 +68,27 @@ namespace WS_MapIDRec
             _fieldName = fieldName;
             var instance = _target.GetField(_instanceName)
                                   .GetValue(null);
+            
+            if (instance == null) return;
             _val = (T)instance.GetType()
                               .GetRuntimeField(fieldName)
                               .GetValue(instance);
             _lastVal = _val;
         }
-        new public async void CheckValChange()
+        new public void CheckValChange()
         {
-            await Task.Run(() =>
+            var instance = _target.GetField(_instanceName)
+                                    .GetValue(null);
+            if (instance == null) return;
+            _val = (T)instance.GetType()
+                                .GetRuntimeField(_fieldName)
+                                .GetValue(instance);
+            if (_lastVal == null) _lastVal = _val;
+            if (_val.GetHashCode() != _lastVal.GetHashCode())
             {
-                var instance = _target.GetField(_instanceName)
-                                      .GetValue(null);
-                if (instance == null) return;
-                _val = (T)instance.GetType()
-                                  .GetRuntimeField(_fieldName)
-                                  .GetValue(instance);
-                if (_val.GetHashCode() != _lastVal.GetHashCode())
-                {
-                    OnValueChange(_val);
-                    _lastVal = _val;
-                }
-            });
+                OnValueChange(_val);
+                _lastVal = _val;
+            }
         }
     }
     public class InstanceFieldTrace
@@ -107,28 +107,28 @@ namespace WS_MapIDRec
             _fieldName = fieldName;
             var instance = _target.GetField(_instanceName)
                                   .GetValue(null);
+            _lastVal = new object();
+            if (instance == null) return;
             _val = instance.GetType()
                               .GetRuntimeField(fieldName)
                               .GetValue(instance);
             _lastVal = _val;
         }
 
-        public async void CheckValChange()
+        public void CheckValChange()
         {
-            await Task.Run(() =>
+            var instance = _target.GetField(_instanceName)
+                                    .GetValue(null);
+            if (instance == null) return;
+            _val = instance.GetType()
+                                .GetRuntimeField(_fieldName)
+                                .GetValue(instance);
+            if (_lastVal == null) _lastVal = _val;
+            if (_val.GetHashCode() != _lastVal.GetHashCode())
             {
-                var instance = _target.GetField(_instanceName)
-                                      .GetValue(null);
-                if (instance == null) return;
-                _val = instance.GetType()
-                                  .GetRuntimeField(_fieldName)
-                                  .GetValue(instance);
-                if (_val.GetHashCode() != _lastVal.GetHashCode())
-                {
-                    OnValueChange(_val);
-                    _lastVal = _val;
-                }
-            });
+                OnValueChange(_val);
+                _lastVal = _val;
+            }
         }
     }
 }
